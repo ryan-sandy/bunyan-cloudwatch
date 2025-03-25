@@ -13,7 +13,7 @@ describe('bunyan-cloudwatch', function () {
   beforeEach(function setup() {
     awsStub = createAWSStub();
     var createCWStream = proxyquire('../', {
-      'aws-sdk': awsStub
+      '@aws-sdk/client-cloudwatch-logs': awsStub
     });
 
     cwStream = createCWStream({

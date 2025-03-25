@@ -1,6 +1,6 @@
 {
   "name": "bunyan-cloudwatch",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "Writable stream to write bunyan logs to AWS CloudWatch",
   "homepage": "https://github.com/mirkokiefer/bunyan-cloudwatch",
   "repository": "git://github.com/mirkokiefer/bunyan-cloudwatch.git",
@@ -19,7 +19,7 @@
   "author": "Mirko Kiefer <mail@mirkokiefer.com>",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.1.33"
+    "@aws-sdk/client-cloudwatch-logs": "^3.774.0"
   },
   "optionalDependencies": {
     "safe-json-stringify": "^1.0.3"

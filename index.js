@@ -1,7 +1,7 @@
 
 var util = require('util');
 var Writable = require('stream').Writable;
-var AWS = require('aws-sdk');
+var AWS = require('@aws-sdk/client-cloudwatch-logs');
 var safeJsonStringify = require('safe-json-stringify');
 
 var jsonStringify = safeJsonStringify ? safeJsonStringify : JSON.stringify;
