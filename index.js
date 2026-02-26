@@ -14,16 +14,19 @@ function createCloudWatchStream(opts) {
 
 util.inherits(CloudWatchStream, Writable);
 function CloudWatchStream(opts) {
+  if (!opts || typeof opts.logGroupName !== 'string' || !opts.logGroupName) {
+    throw new Error('logGroupName is required');
+  }
+  if (typeof opts.logStreamName !== 'string' || !opts.logStreamName) {
+    throw new Error('logStreamName is required');
+  }
   Writable.call(this, {objectMode: true});
   this.logGroupName = opts.logGroupName;
   this.logStreamName = opts.logStreamName;
   this.writeInterval = opts.writeInterval || 0;
 
-  if (opts.AWS) {
-    AWS = opts.AWS;
-  }
-
-  this.cloudwatch = new AWS.CloudWatchLogs(opts.cloudWatchLogsOptions);
+  var awsModule = opts.AWS || AWS;
+  this.cloudwatch = new awsModule.CloudWatchLogs(opts.cloudWatchLogsOptions);
   this.queuedLogs = [];
   this.sequenceToken = null;
   this.writeQueued = false;
@@ -55,8 +58,7 @@ CloudWatchStream.prototype._writeLogs = function _writeLogs() {
   function writeLog() {
     obj.cloudwatch.putLogEvents(log, function (err, res) {
       if (err) {
-        if (err.retryable) return setTimeout(writeLog, obj.writeInterval);
-        if (err.code === 'InvalidSequenceTokenException') {
+        if (err.name === 'InvalidSequenceTokenException') {
           return obj._getSequenceToken(function () {
             log.sequenceToken = obj.sequenceToken;
             setTimeout(writeLog, obj.writeInterval);
@@ -112,7 +114,7 @@ function createLogGroupAndStream(cloudwatch, logGroupName, logStreamName, cb) {
   cloudwatch.createLogGroup({
     logGroupName: logGroupName
   }, function (err) {
-    if (err) return err;
+    if (err) return cb(err);
     createLogStream(cloudwatch, logGroupName, logStreamName, cb);
   });
 }
@@ -126,10 +128,10 @@ function createLogStream(cloudwatch, logGroupName, logStreamName, cb) {
 
 function createCWLog(bunyanLog) {
   var message = {};
-  for (var key in bunyanLog) {
-    if (key === 'time') continue;
+  Object.keys(bunyanLog).forEach(function (key) {
+    if (key === 'time') return;
     message[key] = bunyanLog[key];
-  }
+  });
 
   var log = {
     message: jsonStringify(message),

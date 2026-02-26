@@ -130,27 +130,6 @@ describe('bunyan-cloudwatch', function () {
     }
   });
 
-  it('should retry retryable errors', function (done) {
-    cwStream.writeInterval = 50;
-    awsStub.onLog = onLog;
-    var i = 0;
-
-    log.info({foo: 'bar'}, 'test log 1');
-
-    var t;
-    function onLog(params, cb) {
-      assert.equal(params.logEvents.length, 1);
-      assert.equal(JSON.parse(params.logEvents[0].message).msg, 'test log 1');
-      if (i++ === 0) {
-        t = Date.now();
-        return cb({retryable: true});
-      }
-      assert.equal(Date.now() - t >= 50, true);
-      cb(null, {nextSequenceToken: 'magic-token'});
-      done();
-    }
-  });
-
   it('should use the sequenceToken returned by CloudWatch', function (done) {
     cwStream.sequenceToken = undefined;
     awsStub.onLog = onLog;
